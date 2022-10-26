@@ -1,5 +1,6 @@
 import sys
 from typing import NamedTuple
+from contextlib import suppress
 
 import pytest
 
@@ -36,15 +37,36 @@ def valid_strings_by_occurance(data: list[StringData]) -> int:
     :param numbers: list of StringData
     :return: the number of valid strings
     """
+    n_valid = 0
+    for row in data:
+        count = 0
+        for c in row.string:
+            count += int(c == row.char)
+        if row.start <= count <= row.end:
+            n_valid += 1
+
+    return n_valid
 
 
-def valid_strings_by_position(numbers: list[StringData]) -> int:
+def valid_strings_by_position(data: list[StringData]) -> int:
     """
     Get number of strings that has valid position of given character in them
 
     :param numbers: list of StringData
     :return: the number of valid strings
     """
+    n_valid = 0
+    for row in data:
+        with suppress(IndexError):
+            if row.string[row.start] == row.char:
+                n_valid += 1
+                continue
+
+        with suppress(IndexError):
+            if row.string[row.end] == row.char:
+                n_valid += 1
+
+    return n_valid
 
 
 
