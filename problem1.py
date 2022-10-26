@@ -3,17 +3,47 @@ import sys
 import pytest
 
 
-def load_input(fname):
+def load_input(fname: str) -> list[int]:
+    """
+    Load input data from the given file
+
+    :param fname: input file name
+    :return: list of integers
+    """
     with open(fname) as fhandle:
         return [int(n) for n in fhandle.read().split()]
 
 
-def two_numbers_to_2020(numbers):
-    ...
+def two_numbers_to_2020(numbers: list[int]) -> int | None:
+    """
+    Get the product of two integers that adds to 2020
+
+    :param numbers: list of integers
+    :return: either an integer or None
+    """
+    n = len(numbers)
+    for first_idx, first in enumerate(numbers):
+        for second_idx in range(first_idx + 1, n):
+            second = numbers[second_idx]
+            if first + second == 2020:
+                return first * second
 
 
-def three_numbers_to_2020(numbers):
-    ...
+def three_numbers_to_2020(numbers: list[int]) -> int | None:
+    """
+    Get the product of three integers that adds to 2020
+
+    :param numbers: list of integers
+    :return: either an integer or None
+    """
+    n = len(numbers)
+    for first_idx, first in enumerate(numbers):
+        for second_idx in range(first_idx + 1, n):
+            second = numbers[second_idx]
+            for third_idx in range(second_idx + 1, n):
+                third = numbers[third_idx]
+                if first + second + third == 2020:
+                    return first * second * third
 
 
 
