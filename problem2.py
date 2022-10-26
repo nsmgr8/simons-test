@@ -11,6 +11,23 @@ class StringData(NamedTuple):
     char: str
     string: str
 
+    def valid_by_occurance(self) -> bool:
+        count = 0
+        for c in self.string:
+            count += int(c == self.char)
+        return self.start <= count <= self.end
+
+    def valid_by_position(self) -> bool:
+        with suppress(IndexError):
+            if self.string[self.start] == self.char:
+                return True
+
+        with suppress(IndexError):
+            if self.string[self.end] == self.char:
+                return True
+
+        return False
+
 
 def load_input(fname: str) -> list[StringData]:
     """
@@ -39,12 +56,7 @@ def valid_strings_by_occurance(data: list[StringData]) -> int:
     """
     n_valid = 0
     for row in data:
-        count = 0
-        for c in row.string:
-            count += int(c == row.char)
-        if row.start <= count <= row.end:
-            n_valid += 1
-
+        n_valid += int(row.valid_by_occurance())
     return n_valid
 
 
@@ -57,14 +69,7 @@ def valid_strings_by_position(data: list[StringData]) -> int:
     """
     n_valid = 0
     for row in data:
-        with suppress(IndexError):
-            if row.string[row.start] == row.char:
-                n_valid += 1
-                continue
-
-        with suppress(IndexError):
-            if row.string[row.end] == row.char:
-                n_valid += 1
+        n_valid += int(row.valid_by_position())
 
     return n_valid
 
