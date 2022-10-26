@@ -21,12 +21,11 @@ def two_numbers_to_2020(numbers: list[int]) -> int | None:
     :param numbers: list of integers
     :return: either an integer or None
     """
-    n = len(numbers)
-    for first_idx, first in enumerate(numbers):
-        for second_idx in range(first_idx + 1, n):
-            second = numbers[second_idx]
-            if first + second == 2020:
-                return first * second
+    pairs = {}
+    for x in numbers:
+        if x in pairs:
+            return x * pairs[x]
+        pairs[2020 - x] = x
 
 
 def three_numbers_to_2020(numbers: list[int]) -> int | None:
@@ -37,13 +36,13 @@ def three_numbers_to_2020(numbers: list[int]) -> int | None:
     :return: either an integer or None
     """
     n = len(numbers)
-    for first_idx, first in enumerate(numbers):
-        for second_idx in range(first_idx + 1, n):
-            second = numbers[second_idx]
-            for third_idx in range(second_idx + 1, n):
-                third = numbers[third_idx]
-                if first + second + third == 2020:
-                    return first * second * third
+    triples = {}
+    for i, x in enumerate(numbers):
+        for j in range(i + 1, n):
+            y = numbers[j]
+            if y in triples:
+                return y * triples[y][0] * triples[y][1]
+            triples[2020 - x - y] = (x, y)
 
 
 
