@@ -11,22 +11,45 @@ class StringData(NamedTuple):
     char: str
     string: str
 
+    @staticmethod
+    def from_string(input_string: str) -> 'StringData':
+        """
+        Factory to create a StringData instance from a formatted string
+
+        :param input_string: formatted string, e.g., '1-3 a: abcde'
+        :return: StringData instance created from the input_string
+        """
+        chunks = input_string.split()
+        start, end = [int(x) for x in chunks[0].split('-')]
+        char = chunks[1][0]
+        string = chunks[2]
+        return StringData(start, end, char, string)
+
     def valid_by_occurance(self) -> bool:
+        """
+        :return: True if the string is valid by the number of occurances
+            condition, False otherwise
+        """
         count = 0
         for c in self.string:
             count += int(c == self.char)
         return self.start <= count <= self.end
 
     def valid_by_position(self) -> bool:
+        """
+        :return: True if the string is valid by position of the character in
+            the string, False otherwise
+        """
+        n_found = 0
         with suppress(IndexError):
-            if self.string[self.start] == self.char:
-                return True
+            if self.string[self.start - 1] == self.char:
+                n_found += 1
 
         with suppress(IndexError):
-            if self.string[self.end] == self.char:
-                return True
+            if self.string[self.end - 1] == self.char:
+                n_found += 1
 
-        return False
+        return n_found == 1
 
 
 def load_input(fname: str) -> list[StringData]:
@@ -38,12 +61,7 @@ def load_input(fname: str) -> list[StringData]:
     """
     data = []
     with open(fname) as fhandle:
-        for line in fhandle:
-            chunks = line.split()
-            start, end = [int(x) for x in chunks[0].split('-')]
-            char = chunks[1][0]
-            string = chunks[2]
-            data.append(StringData(start, end, char, string))
+        data = [StringData.from_string(line) for line in fhandle]
     return data
 
 
@@ -101,3 +119,22 @@ def test_valid_strings_by_occurance(input_data):
 
 def test_valid_strings_by_position(input_data):
     assert valid_strings_by_position(input_data) == 1
+
+
+def test_factory_from_string():
+    data = StringData.from_string('1-3 a: aba')
+    assert data.start == 1
+    assert data.end == 3
+    assert data.char == 'a'
+    assert data.string == 'aba'
+
+
+def test_valid_occurances():
+    assert StringData(1, 3, 'a', 'abcde').valid_by_occurance()
+    assert not StringData(1, 3, 'b', 'cdefg').valid_by_occurance()
+
+
+def test_valid_positions():
+    assert StringData(1, 3, 'a', 'abcde').valid_by_position()
+    assert not StringData(1, 3, 'b', 'cdefg').valid_by_position()
+    assert not StringData(2, 9, 'c', 'ccccccccc').valid_by_position()

@@ -40,4 +40,4 @@ Using the example above:
 How many strings meet the constraint in the input2.txt file with the modified
 constraint?
 
-Answer: 788
+Answer: 670
