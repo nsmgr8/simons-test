@@ -1,5 +1,5 @@
 import sys
-from typing import NamedTuple
+from typing import Callable, NamedTuple
 from contextlib import suppress
 
 import pytest
@@ -25,31 +25,30 @@ class StringData(NamedTuple):
         string = chunks[2]
         return StringData(start, end, char, string)
 
-    def valid_by_occurance(self) -> bool:
-        """
-        :return: True if the string is valid by the number of occurances
-            condition, False otherwise
-        """
-        count = 0
-        for c in self.string:
-            count += int(c == self.char)
-        return self.start <= count <= self.end
+    def validate(self, strategy: Callable[['StringData'], bool]) -> bool:
+        return strategy(self)
 
-    def valid_by_position(self) -> bool:
-        """
-        :return: True if the string is valid by position of the character in
-            the string, False otherwise
-        """
-        n_found = 0
-        with suppress(IndexError):
-            if self.string[self.start - 1] == self.char:
-                n_found += 1
 
-        with suppress(IndexError):
-            if self.string[self.end - 1] == self.char:
-                n_found += 1
+def valid_by_occurance(data: StringData) -> bool:
+    """
+    :return: True if the string is valid by the number of occurances
+        condition, False otherwise
+    """
+    count = sum(int(c == data.char) for c in data.string)
+    return data.start <= count <= data.end
 
-        return n_found == 1
+
+def valid_by_position(data: StringData) -> bool:
+    """
+    :return: True if the string is valid by position of the character in
+        the string, False otherwise
+    """
+    n_found = 0
+    with suppress(IndexError):
+        n_found += int(data.string[data.start - 1] == data.char)
+    with suppress(IndexError):
+        n_found += int(data.string[data.end - 1] == data.char)
+    return n_found == 1
 
 
 def load_input(fname: str) -> list[StringData]:
@@ -72,10 +71,7 @@ def valid_strings_by_occurance(data: list[StringData]) -> int:
     :param numbers: list of StringData
     :return: the number of valid strings
     """
-    n_valid = 0
-    for row in data:
-        n_valid += int(row.valid_by_occurance())
-    return n_valid
+    return sum(int(x.validate(valid_by_occurance)) for x in data)
 
 
 def valid_strings_by_position(data: list[StringData]) -> int:
@@ -85,11 +81,7 @@ def valid_strings_by_position(data: list[StringData]) -> int:
     :param numbers: list of StringData
     :return: the number of valid strings
     """
-    n_valid = 0
-    for row in data:
-        n_valid += int(row.valid_by_position())
-
-    return n_valid
+    return sum(int(x.validate(valid_by_position)) for x in data)
 
 
 
@@ -130,11 +122,11 @@ def test_factory_from_string():
 
 
 def test_valid_occurances():
-    assert StringData(1, 3, 'a', 'abcde').valid_by_occurance()
-    assert not StringData(1, 3, 'b', 'cdefg').valid_by_occurance()
+    assert StringData(1, 3, 'a', 'abcde').validate(valid_by_occurance)
+    assert not StringData(1, 3, 'b', 'cdefg').validate(valid_by_occurance)
 
 
 def test_valid_positions():
-    assert StringData(1, 3, 'a', 'abcde').valid_by_position()
-    assert not StringData(1, 3, 'b', 'cdefg').valid_by_position()
-    assert not StringData(2, 9, 'c', 'ccccccccc').valid_by_position()
+    assert StringData(1, 3, 'a', 'abcde').validate(valid_by_position)
+    assert not StringData(1, 3, 'b', 'cdefg').validate(valid_by_position)
+    assert not StringData(2, 9, 'c', 'ccccccccc').validate(valid_by_position)
